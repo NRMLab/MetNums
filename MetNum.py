@@ -20,13 +20,13 @@ def MN_PF(funcion,despeje, X0):
     gxs = []
     results = []
     while fin == 1:
-      X0 = despeje.evalf(subs={X: X0})
-      resu = funcion.evalf(subs={X: X0})
-      gxs.append(X0)
-      results.append(resu)
+        X0 = despeje.evalf(subs={X: X0})
+        resu = funcion.evalf(subs={X: X0})
+        gxs.append(X0)
+        results.append(resu)
 
-      if -0.00001 < resu < 0.00001:
-        fin =0
+        if -0.00001 < resu < 0.00001:
+            fin =0
 
     allres = { 'g(x)': gxs,
                'f(x)': results}
@@ -103,7 +103,7 @@ def MN_NR(funcion, X0):
 #         print(X0)
         gxs.append(X0)
         results.append(resu)
-        if -0.0000001 < resu < 0.0000001:
+        if -0.000000001 < resu < 0.000000001:
             fin = 0
 
     allres = { 'x_i': gxs,
@@ -151,11 +151,15 @@ def MN_NRM(funciones, vec, variables):
         for j,je in enumerate(variables):
 
             dx[i][j]=diff(funciones[i],je)
+            print(dx[i][j])
             Fx.append(funciones[i])
             vari.append(je)
             dxQ.append(dx[i][j])
+
+    c1 = 0
     #iterar para encontrar las raices
     while fin == 1:
+        c1 += 1
         #Hacer las evaluaciones
         for i in range(LF):
             #evaluar funciones
@@ -170,12 +174,12 @@ def MN_NRM(funciones, vec, variables):
         z= np.array(funceval).dot([[-1]])
         #Pasado de ser un ser 2D a 1D
         z=np.squeeze(z.T)
-        #Sacanod las h's
+        #Sacando las h's
         hs = dxevals.dot(z)
         #Calculando las nuevas "x"
         vec=np.add(hs,vec)
         results.append(vec)
-
+        print(c1,'\t x: {0:.6f}'.format(vec[0]), ' y: {0:.6f}'.format(vec[1]))
         d=dict(zip(variables,vec))
         #Criterio de paro
         cont=0
