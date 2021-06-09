@@ -202,5 +202,3 @@ def MN_NRM(funciones, vec, variables):
     tabledxprint.columns=["Funciones","Variables","Derivadas"]
 
     return allresdf,  tabledxprint, m
-#Rubs Estuvo Aqui jeje
-#Otro cambio
