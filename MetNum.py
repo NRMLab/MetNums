@@ -495,3 +495,134 @@ def mnc_sinusoidal(x,y,periodo,eval=1):
     print('Porcentaje que explica el modelo de la incertidumbre original: ', np.round(r*100,3),'%\n')
     if eval:
         print('Los resultados calculados son: \n',(c[0]+c[1]*np.cos(w0*x)+c[2]*np.sin(w0*x))[np.newaxis, :].T)
+
+def diferenciacion(h,x=0,xs=[],fxs=[]):
+    '''Ejemplo:
+    # Usando listas, grado 2
+    diferenciacion(200,2300,[2200,2400],[12.577,11.565,13.782])
+    # Usando función, grado 1
+    diferenciacion(200,fxs=[12.577,11.565])'''
+    if len(fxs) == 2:
+        df=(fxs[1]-fxs[0])/h
+    elif len(fxs) == 3 and len(xs) == 2:
+        df=(((2*x-xs[0]-xs[1]-2*h)/(2*h**2))*fxs[0])+(((2*xs[0]-4*x+ 2*xs[1]+2*h)/(2*h**2))*fxs[1])+(((2*x-xs[0]-xs[1])/(2*h**2))*fxs[2])
+    else:
+         df=None
+    return df
+
+def derivadas_irregular(x,f):
+    '''Ejemplo:
+    # Usando listas
+    derivadas_irregular([273,300,325],[0.62,0.51,0.48])
+    '''
+    dfi = f[0]*((2*x[1]-x[1]-x[2])/((x[0]-x[1])*(x[0]-x[2])))+f[1]*((2*x[1]-x[0]-x[2])/((x[1]-x[0])*(x[1]-x[2])))+f[2]*((2*x[1]-x[0]-x[1])/((x[2]-x[0])*(x[2]-x[1])))
+    return dfi
+
+def trapezoidal(x=[],f=0,fs=[]):
+    '''Ejemplo:
+    # Usando listas
+    trapezoidal([900,2200],fs=[13.4,27.2])
+    # Usando función
+    trapezoidal([900,2200],fs=[13.4,27.2])'''
+    if f:
+        fx0 = f(x[0])
+        fx1 = f(x[-1])
+    if fs:
+        fx0 = fs[0]
+        fx1 = fs[-1]
+    h=x[1]-x[0]
+    T = (h/2)*(fx0+fx1)
+    return T
+
+def trapezoidal_compuesto(h,f,x=0):
+    '''Ejemplo:
+    # Usando función
+    trapezoidal_compuesto(7/6,f= lambda i: 3*i**2+2*i+1,x=[-3,3])'''
+    if type(f) == type(lambda x: x):
+        I = (h/2)*(f(x[0])+2*sum([f(i) for i in np.arange(x[0]+h,x[-1]-h,h)])+f(x[-1]))
+    elif type(f) == type([]):
+        I = (h/2)*(f[0]+2*sum(f[1:-1])+f[-1])
+    return I
+
+def simpson(grado,f,x=[]):
+    '''Ejemplo:
+    # Usando listas
+    simpson(1,f=[13.4,18.7,23,25.1,27.2],x=[900,1400,1800,2000,2200])
+    # Usando función
+    '''
+    h=(x[-1]-x[0])/grado
+    if type(f) == type([]):
+        if grado == 6:
+            I = (h/140) * (41*f[0]+216*f[1]+27*f[2]+272*f[3]+27*f[4]+216*f[5]+41*f[-1])
+        elif grado ==5:
+            I =((5*h)/(288))*(19*f[0]+75*f[1]+50*f[2]+50*f[3]+75*f[4]+19*f[-1])
+        elif grado ==4:
+            I =((2*h)/45)*(7*f[0]+32*f[1]+12*f[2]+32*f[3]+7*f[-1])
+        elif grado ==3:
+            I = ((3*h)/8)*(f[0]+3*f[1]+3*f[2]+f[-1])
+        elif grado ==2:
+            I =(h/3)*(f[0]+4*f[1]+f[-1])
+        elif grado ==1:
+            I = (h/2)*(f[0]+f[-1])
+
+    elif type(f) == type(lambda x: x):
+        if grado == 1:
+            I = (h/2)*(f(x[0])+f(x[-1]))
+        elif grado == 2:
+            I =(h/3)*(f(x[0])+4*f(x[0]+h)+f(x[-1]))
+        elif grado == 3:
+            I = ((3*h)/8)*(f(x[0])+3*f(x[0]+h)+3*f(x[0]+2*h)+f(x[-1]))
+        elif grado == 4:
+            I =((2*h)/45)*(7*f(x[0])+32*f(x[0]+h)+12*f(x[0]+h*2)+32*f(x[0]+h*3)+7*f(x[-1]))
+        elif grado == 5:
+            I =((5*h)/(288))*(19*f(x[0])+75*f(x[0]+1*h)+50*f(x[0]+2*h)+50*f(x[0]+3*h)+75*f(x[0]+4*h)+19*f(x[-1]))
+        elif grado == 6:
+            I = (h/140) * (41*f(x[0])+216*f(x[0]+h)+27*f(x[0]+2*h)+272*f(x[0]+3*h)+27*f(x[0]+4*h)+216*f(x[0]+5*h)+41*f(x[-1]))
+    return I
+
+def Simpson_compuesto(x,f,n):
+    '''Ejemplo:
+    # Usando listas
+    Simpson_compuesto([900,1400,1800,2000,2200],[13.4,18.7,23,25.1,27.2],5)
+    # Usando función
+    '''
+    h=(x[-1]-x[0])/n
+    a=np.arange(x[0],x[-1],h)
+    if type(f) == type(lambda x:x):
+        I=(h/3)*(f(x[0])+4*(sum([f(a[i]) for i in range(1,len(a)) if i%2 != 0]))+2*(sum([f(a[i]) for i in range(1,len(a)) if i%2 == 0]))+f(x[-1]))
+    elif type(f) == type([]):
+        I=(h/3)*(f[0]+4*(sum([f[i] for i in range(1,len(a)) if i%2 != 0]))+2*(sum([f[i] for i in range(1,len(a)) if i%2 == 0]))+f[-1])
+    return I
+
+def cuadratura_gauss(x,f):
+    '''Ejemplo:
+    l= [0,0.8]
+    f= lambda x: 0.2+25*x-200*x**2+675*x**3-900*x**4+400*x**5
+    cuadratura_gauss(l,f)
+    '''
+    xd1 = -0.5744
+    xd2 = 0.5774
+    x1 = (x[-1]+x[0]+(x[-1]-x[0])*xd1)/2
+    x2 = (x[-1]+x[0]+(x[-1]-x[0])*xd2)/2
+    dx = (x[-1]-x[0])/2
+    f1 = f(x1)*dx
+    f2 = f(x2)*dx
+    I = f1+f2
+    print('I :',I,' = ',f1,' + ',f2)
+    return I
+
+def euler(x0,xf,y0,f,n):
+    '''Ejemplo:
+    euler(0,10,25,lambda x,y: 40-0.2*y,10)
+    '''
+    h=(xf-x0)/n
+    y=[]
+    x=[]
+    y.append(y0)
+    x.append(x0)
+    for i in range(n):
+        y.append(y[i]+h*f(x[i],y[i]))
+        x.append(x[i]+h)
+    print('Ys resultantes',y)
+    print('Xs resultantes',x)
+    return y[-1]
