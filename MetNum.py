@@ -2,6 +2,7 @@ from sympy import *
 import math
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def MN_PF(funcion,despeje, X0):
@@ -314,8 +315,9 @@ def InterPol_Intercal(x,y,color=['ro','b'], val=0, polyrange=[0,5], gen = 0, mgr
       new_y = poly(new_x)
 
       kr = k -1
-      axs[int(np.floor(kr/2)), kr%2].plot(x, y, "kD", new_x, new_y,'c--')
+      axs[int(np.floor(kr/2)), kr%2].plot(x, y, "kD", new_x, new_y,'c--', label = '{}'.format(poly))
       axs[int(np.floor(kr/2)), kr%2].set_title('Poliniomio de grado: {}'.format(k))
+      axs[int(np.floor(kr/2)), kr%2].legend()
 
   mejor = min(a.keys())
   poly = np.poly1d(a[mejor][::-1])
